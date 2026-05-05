@@ -1,0 +1,78 @@
+﻿@{
+    ViewData["Title"] = "Email With Progress";
+}
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+
+<div class="container mt-5">
+    <h3>Email Sending Progress</h3>
+
+    <button id="btnStart" class="btn btn-primary mb-3">
+        Start Sending Email
+    </button>
+
+    <div class="progress mb-3" style="height: 25px;">
+        <div id="progressBar"
+             class="progress-bar progress-bar-striped progress-bar-animated"
+             role="progressbar"
+             style="width: 0%">
+            0%
+        </div>
+    </div>
+
+    <div>
+        <strong>Total:</strong> <span id="total">0</span> |
+        <strong>Processed:</strong> <span id="processed">0</span> |
+        <strong>Success:</strong> <span id="success">0</span> |
+        <strong>Failed:</strong> <span id="failed">0</span>
+    </div>
+</div>
+
+<script>
+    let interval = null;
+
+    document.getElementById("btnStart")
+        .addEventListener("click", function () {
+
+        fetch('/Email/StartSending', {
+            method: 'POST'
+        })
+        .then(res => res.json())
+        .then(data => {
+            
+        });
+        startPolling();
+    });
+
+    function startPolling() {
+        interval = setInterval(() => {
+
+            fetch(`/Email/EmailProgressNotification`)
+                .then(res => res.json())
+                .then(data => {
+
+                    updateUI(data);
+
+                    if (data.isCompleted) {
+                        clearInterval(interval);
+                    }
+                });
+
+        }, 1000);
+    }
+
+    function updateUI(data) {
+
+        document.getElementById("total").innerText = data.total;
+        document.getElementById("processed").innerText = data.processed;
+        document.getElementById("success").innerText = data.success;
+        document.getElementById("failed").innerText = data.failed;
+
+        let percent = data.percent;
+
+        let bar = document.getElementById("progressBar");
+
+        bar.style.width = percent + "%";
+        bar.innerText = percent + "%";
+    }
+</script>
