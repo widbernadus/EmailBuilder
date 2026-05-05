@@ -34,7 +34,8 @@ dotnet add package MimeKit
 
 ## 2\. Copy Service Files
 
-Copy: Services/, Models/
+Copy: Src/Services
+place it in your project
 
 ## 3\. Configure SMTP
 
