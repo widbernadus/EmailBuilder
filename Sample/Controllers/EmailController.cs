@@ -29,8 +29,8 @@ namespace SendingEmail.Controllers
             cc.Add(new("email1@gmail.com", "cc1"));
             cc.Add(new("email2@gmail.com", "cc2"));
 
-            string firstFile = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "1st.txt");
-            string secondFile = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "2nd.txt");
+            string firstFile = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "Files", "1st.txt");
+            string secondFile = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "Files", "2nd.txt");
 
             List<string> attachments = new List<string>
             {
