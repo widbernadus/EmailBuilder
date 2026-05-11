@@ -16,7 +16,8 @@ A modular design with clear separation of concerns, making the system easier to 
 * HTML \& plain text content
 * Async email sending
 * Clean and readable syntax
-* Cancelation Token to terminate an execution
+* Cancellation Token to terminate an execution
+* Dynamic SMTP configurations
 
 ## Progress Tracking Service
 
@@ -37,16 +38,32 @@ dotnet add package MimeKit
 Copy: Src/Services
 place it in your project
 
-## 3\. Configure SMTP
+## 3\. Configure Multiple SMTP provider
 
 appsettings.json:
 ```
-"EmailSettings": {
-  "Host": "smtp.gmail.com",
-  "Port": 587,
-  "Username": "your@email.com",
-  "Password": "yourpassword",
-  "UseSSL": true
+"SmtpSettings": {
+  "DefaultProvider": "office365",
+  "Providers": {
+    "office365": {
+      "SmtpServer": "smtp-legacy.office365.com",
+      "Port": 587,
+      "SenderName": "Your name",
+      "SenderEmail": "no-reply@outlook.ac.id",
+      "Username": "no-reply@outlook.ac.id",
+      "Password": "password",
+      "UseSsl": false
+    },
+    "gmail": {
+      "SmtpServer": "smtp.gmail.com",
+      "Port": 587,
+      "SenderName": "Gmail Sender",
+      "SenderEmail": "gmail@gmail.com",
+      "Username": "gmail@gmail.com",
+      "Password": "password",
+      "UseSSL": false
+    }
+  }
 }
 ```
 ## 4\. Register Services
@@ -90,6 +107,29 @@ public async Task<IActionResult> SendSimpleEmail()
 
     return Ok(result);
 }
+```
+When you need to change the SMPT Provider
+
+```
+public async Task<IActionResult> SendSimpleEmail()
+{
+    var result = await _emailService
+        .AddTo("user@mail.com", "User")
+        .SetSubject("Hello")
+        .SetBody("This is a simple email")
+        .UseSmtpProvider("gmail")
+        .SendEmailAsync();
+
+    return Ok(result);
+}
+```
+place 
+```
+.UseSmtpProvider("gmail")
+```
+before
+```
+.SendEmailAsync();
 ```
 
 ## Email with Attachment \& CC
