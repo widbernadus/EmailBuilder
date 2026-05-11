@@ -119,6 +119,8 @@ namespace Src.Services.Email.Interfaces
         Task<EmailSendResult> SendEmailAsync(
             CancellationToken cancellationToken = default);
 
+        IEmailService UseSmtpProvider(string providerName);
+
         void Reset();
     }
 }

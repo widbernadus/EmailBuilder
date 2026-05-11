@@ -46,6 +46,7 @@ namespace SendingEmail.Controllers
                 .SetBody(emailBody)
                 .AddAttachments(attachments)
                 .AddAttachment(secondFile)
+                .UseSmtpProvider("gmail")
                 .SendEmailAsync(cancellationToken);
 
             return Ok(result);

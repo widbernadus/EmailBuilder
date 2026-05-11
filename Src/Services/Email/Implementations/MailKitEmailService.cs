@@ -14,6 +14,7 @@ namespace Src.Services.Email.Implementations
     {
         private ILogger<MailKitEmailService> _logger;
         private readonly EmailSettings _settings;
+        private SmtpProviderSettings _currentProvider;
 
         private MimeMessage _message;
         private BodyBuilder _bodyBuilder;
@@ -22,6 +23,8 @@ namespace Src.Services.Email.Implementations
         {
             _settings = settings.Value;
             _logger = logger;
+            _currentProvider = _settings.Providers[_settings.DefaultProvider];
+
             InitializeMessage();
         }
 
@@ -37,8 +40,8 @@ namespace Src.Services.Email.Implementations
 
             _message.From.Add(
                 new MailboxAddress(
-                    _settings.SenderName,
-                    _settings.SenderEmail));
+                    _currentProvider.SenderName,
+                    _currentProvider.SenderEmail));
 
             _bodyBuilder = new BodyBuilder();
         }
@@ -146,19 +149,19 @@ namespace Src.Services.Email.Implementations
                 smtp.Timeout = 10000;
 
                 await smtp.ConnectAsync(
-                    _settings.SmtpServer,
-                    _settings.Port,
-                    _settings.UseSsl
+                    _currentProvider.SmtpServer,
+                    _currentProvider.Port,
+                    _currentProvider.UseSsl
                         ? SecureSocketOptions.SslOnConnect
                         : SecureSocketOptions.StartTls,
                     cancellationToken
                 );
 
-                if (!string.IsNullOrWhiteSpace(_settings.Username))
+                if (!string.IsNullOrWhiteSpace(_currentProvider.Username))
                 {
                     await smtp.AuthenticateAsync(
-                        _settings.Username,
-                        _settings.Password,
+                        _currentProvider.Username,
+                        _currentProvider.Password,
                         cancellationToken);
                 }
 
@@ -276,6 +279,19 @@ namespace Src.Services.Email.Implementations
             }
 
             return errors;
+        }
+
+        public IEmailService UseSmtpProvider(string providerName)
+        {
+            if (!_settings.Providers.TryGetValue(providerName, out var provider))
+            {
+                throw new Exception(
+                    $"SMTP provider '{providerName}' not found.");
+            }
+
+            _currentProvider = provider;
+
+            return this;
         }
     }
 }
